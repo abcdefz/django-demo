@@ -37,8 +37,7 @@ class User(models.Model):
     def verify_api_perimission(**permission):
         if not user.role.filter(
                 permission__method=permission['method'],
-                permission__path=permission['path'],
-                permission__name=permission['name']):
+                permission__path=permission['path']):
             return False
         return True
     

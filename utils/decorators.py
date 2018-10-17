@@ -1,3 +1,4 @@
+import re
 import json
 import time
 from functools import wraps
@@ -38,15 +39,26 @@ def login_required(func):
     return decorated_function
 
 
-def permission_required(permission):
-    def outer_wrapper(func):
-        def inner_wrapper(request, *args, **kwargs):
-            user = kwargs['user']
-            if not user.verify_permission(permission):
-                return forbidden('Forbidden Permission')
-            return func(request, *args, **kwargs)
-        return inner_wrapper
-    return outer_wrapper
+def api_permission_required(func):
+    def decorated_function(request, *args, **kwargs):
+        user = kwargs['user']
+        method = request.method
+        path = re.sub(r'\d+', ':id', request.path)
+        if not user.api_permission_required(method, path):
+            return forbidden('U dont have the permission')
+        return func(request, *args, **kwargs)
+    return decorated_function
+
+# 暂时不用
+# def permission_required(permission):
+#     def outer_wrapper(func):
+#         def inner_wrapper(request, *args, **kwargs):
+#             user = kwargs['user']
+#             if not user.verify_permission(permission):
+#                 return forbidden('Forbidden Permission')
+#             return func(request, *args, **kwargs)
+#         return inner_wrapper
+#     return outer_wrapper
 
 
 def test(name):
